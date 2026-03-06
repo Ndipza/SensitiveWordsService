@@ -1,6 +1,6 @@
 ﻿namespace SensitiveWords.Application.Algorithms
 {
-    public class SensitiveWordMatcher
+    public sealed class SensitiveWordMatcher
     {
         private readonly SensitiveWordTrie _trie;
 
@@ -11,27 +11,37 @@
 
         public string Sanitize(string input)
         {
-            var chars = input.ToCharArray();
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
 
-            for (int i = 0; i < chars.Length; i++)
+            var buffer = input.ToCharArray();
+
+            for (int i = 0; i < buffer.Length; i++)
             {
                 var node = _trie.Root;
                 int j = i;
 
-                while (j < chars.Length &&
-                       node.Children.TryGetValue(char.ToUpper(chars[j]), out node))
+                while (j < buffer.Length &&
+                       node.TryGetChild(char.ToUpperInvariant(buffer[j]), out node))
                 {
-                    if (node.IsEndOfWord)
+                    if (node.IsEndOfWord && node.Word != null)
                     {
-                        for (int k = i; k <= j; k++)
-                            chars[k] = '*';
+                        Replace(buffer, i, j);
                     }
 
                     j++;
                 }
             }
 
-            return new string(chars);
+            return new string(buffer);
+        }
+
+        private static void Replace(char[] buffer, int start, int end)
+        {
+            for (int i = start; i <= end; i++)
+            {
+                buffer[i] = '*';
+            }
         }
     }
 }

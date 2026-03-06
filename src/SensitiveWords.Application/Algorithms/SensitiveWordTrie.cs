@@ -1,24 +1,35 @@
-﻿namespace SensitiveWords.Application.Algorithms
+﻿using SensitiveWords.Domain.Entities;
+
+namespace SensitiveWords.Application.Algorithms
 {
-    public class SensitiveWordTrie
+    public sealed class SensitiveWordTrie
     {
         private readonly TrieNode _root = new();
 
+        public TrieNode Root => _root;
+
         public void AddWord(string word)
         {
-            var node = _root;
+            if (string.IsNullOrWhiteSpace(word))
+                return;
 
-            foreach (var c in word.ToUpper())
+            var currentNode = _root;
+
+            foreach (var character in word.ToUpperInvariant())
             {
-                if (!node.Children.ContainsKey(c))
-                    node.Children[c] = new TrieNode();
-
-                node = node.Children[c];
+                currentNode = currentNode.GetOrAddChild(character);
             }
 
-            node.IsEndOfWord = true;
+            currentNode.IsEndOfWord = true;
+            currentNode.Word = word;
         }
 
-        public TrieNode Root => _root;
+        public void Build(IEnumerable<SensitiveWord> words)
+        {
+            foreach (var word in words)
+            {
+                AddWord(word.Word);
+            }
+        }
     }
 }

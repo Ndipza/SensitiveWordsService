@@ -3,6 +3,7 @@ using SensitiveWords.Application.Interfaces;
 using SensitiveWords.Application.Services;
 using SensitiveWords.Infrastructure.Repositories;
 using System.Threading.RateLimiting;
+using SensitiveWords.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +14,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register Infrastructure
+builder.Services.AddInfrastructure();
+
 // Dependency Injection
 builder.Services.AddScoped<ISensitiveWordRepository, SensitiveWordRepository>();
-builder.Services.AddScoped<SensitiveWordEngine>();
+builder.Services.AddScoped<ISensitiveWordService, SensitiveWordService>();
 builder.Services.AddScoped<SanitizationService>();
+
+builder.Services.AddSingleton<SensitiveWordEngine>();
+builder.Services.AddHostedService<SensitiveWordEngineLoader>();
 
 // Rate Limiting
 builder.Services.AddRateLimiter(options =>

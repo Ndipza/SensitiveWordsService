@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SensitiveWords.Application.DTOs;
+using SensitiveWords.Application.DTOs.Sanitization;
 using SensitiveWords.Application.Services;
 
 namespace SensitiveWords.Api.Controllers

@@ -6,9 +6,11 @@ namespace SensitiveWords.Application.Interfaces
     {
         Task<IEnumerable<SensitiveWord>> GetAllAsync();
 
-        Task<int> CreateAsync(string word);
+        Task<SensitiveWord?> GetByIdAsync(int id);
 
-        Task UpdateAsync(int id, string word);
+        Task AddAsync(SensitiveWord word);
+
+        Task UpdateAsync(SensitiveWord word);
 
         Task DeleteAsync(int id);
     }

@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/database/">
+    <File Path="init.sql" />
+    <File Path="seed_sensitive_words.sql" />
+    <File Path="stored_procedures.sql" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SensitiveWords.Api/SensitiveWords.Api.csproj" />
     <Project Path="src/SensitiveWords.Application/SensitiveWords.Application.csproj" />

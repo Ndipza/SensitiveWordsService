@@ -1,4 +1,4 @@
-﻿namespace SensitiveWords.Application.DTOs
+﻿namespace SensitiveWords.Application.DTOs.Sanitization
 {
     public class SanitizeResponse
     {

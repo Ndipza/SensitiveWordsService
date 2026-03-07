@@ -1,15 +1,21 @@
-﻿using SensitiveWords.Application.Exceptions;
-using System.Net;
+﻿using System.Net;
+using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using SensitiveWords.Application.Exceptions;
 
 namespace SensitiveWords.Api.Middleware
 {
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next)
+        public ExceptionMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -18,24 +24,41 @@ namespace SensitiveWords.Api.Middleware
             {
                 await _next(context);
             }
-            catch (NotFoundException ex)
+            catch (Exception ex)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                _logger.LogError(ex, "Unhandled exception occurred");
 
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    error = ex.Message
-                });
+                if (context.Response.HasStarted)
+                    throw;
+
+                await HandleException(context, ex);
             }
-            catch (Exception)
+        }
+
+        private static async Task HandleException(HttpContext context, Exception exception)
+        {
+            var (status, title) = exception switch
             {
-                context.Response.StatusCode = 500;
+                DuplicateSensitiveWordException => (HttpStatusCode.Conflict, "Duplicate sensitive word"),
+                NotFoundException => (HttpStatusCode.NotFound, "Resource not found"),
+                _ => (HttpStatusCode.InternalServerError, "Unexpected server error")
+            };
 
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    error = "An unexpected error occurred"
-                });
-            }
+            var problem = new ProblemDetails
+            {
+                Status = (int)status,
+                Title = title,
+                Detail = exception.Message,
+                Instance = context.Request.Path
+            };
+
+            context.Response.Clear();
+            context.Response.StatusCode = (int)status;
+            context.Response.ContentType = "application/problem+json";
+
+            var json = JsonSerializer.Serialize(problem);
+
+            await context.Response.WriteAsync(json);
         }
     }
 }

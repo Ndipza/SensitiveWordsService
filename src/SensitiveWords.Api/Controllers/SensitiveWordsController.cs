@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SensitiveWords.Application.DTOs.SensitiveWords;
 using SensitiveWords.Application.Interfaces;
-using SensitiveWords.Application.Services;
 
 namespace SensitiveWords.Api.Controllers
 {
@@ -10,50 +9,44 @@ namespace SensitiveWords.Api.Controllers
     public class SensitiveWordsController : ControllerBase
     {
         private readonly ISensitiveWordService _service;
+        private readonly ILogger<SensitiveWordsController> _logger;
 
-        public SensitiveWordsController(ISensitiveWordService service)
+        public SensitiveWordsController(
+            ISensitiveWordService service,
+            ILogger<SensitiveWordsController> logger)
         {
             _service = service;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Get all sensitive words
-        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SensitiveWordResponse>>> GetAll()
         {
+            _logger.LogInformation("Retrieving sensitive words");
+
             var result = await _service.GetAllAsync();
 
             return Ok(result);
         }
 
-        /// <summary>
-        /// Add a new sensitive word
-        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateSensitiveWordRequest request)
+        public async Task<IActionResult> Create(CreateSensitiveWordRequest request)
         {
             await _service.AddAsync(request);
 
-            return Created(string.Empty, null);
+            return CreatedAtAction(nameof(GetAll), null);
         }
 
-        /// <summary>
-        /// Update an existing sensitive word
-        /// </summary>
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(
             int id,
-            [FromBody] UpdateSensitiveWordRequest request)
+            UpdateSensitiveWordRequest request)
         {
             await _service.UpdateAsync(id, request);
 
             return NoContent();
         }
 
-        /// <summary>
-        /// Delete a sensitive word
-        /// </summary>
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -1,7 +1,7 @@
 ﻿using System.Net;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SensitiveWords.Application.Exceptions;
+using FluentValidation;
 
 namespace SensitiveWords.Api.Middleware
 {
@@ -20,27 +20,47 @@ namespace SensitiveWords.Api.Middleware
 
         public async Task Invoke(HttpContext context)
         {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             try
             {
+                _logger.LogInformation(
+                    "Incoming request {Method} {Path}",
+                    context.Request.Method,
+                    context.Request.Path);
+
                 await _next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
-
-                if (context.Response.HasStarted)
-                    throw;
-
                 await HandleException(context, ex);
+            }
+            finally
+            {
+                stopwatch.Stop();
+
+                _logger.LogInformation(
+                    "Request completed {StatusCode} in {Elapsed}ms",
+                    context.Response.StatusCode,
+                    stopwatch.ElapsedMilliseconds);
             }
         }
 
-        private static async Task HandleException(HttpContext context, Exception exception)
+        private async Task HandleException(HttpContext context, Exception exception)
         {
+            _logger.LogError(exception, "Unhandled exception occurred");
+
+            if (context.Response.HasStarted)
+            {
+                _logger.LogWarning("Response already started, cannot write error response.");
+                return;
+            }
+
             var (status, title) = exception switch
             {
                 DuplicateSensitiveWordException => (HttpStatusCode.Conflict, "Duplicate sensitive word"),
                 NotFoundException => (HttpStatusCode.NotFound, "Resource not found"),
+                ValidationException => (HttpStatusCode.BadRequest, "Validation error"),
                 _ => (HttpStatusCode.InternalServerError, "Unexpected server error")
             };
 
@@ -52,13 +72,12 @@ namespace SensitiveWords.Api.Middleware
                 Instance = context.Request.Path
             };
 
+            problem.Extensions["traceId"] = context.TraceIdentifier;
+
             context.Response.Clear();
             context.Response.StatusCode = (int)status;
-            context.Response.ContentType = "application/problem+json";
 
-            var json = JsonSerializer.Serialize(problem);
-
-            await context.Response.WriteAsync(json);
+            await context.Response.WriteAsJsonAsync(problem);
         }
     }
 }

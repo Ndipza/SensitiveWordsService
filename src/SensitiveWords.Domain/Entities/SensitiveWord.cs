@@ -7,5 +7,10 @@
         public string Word { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public void Normalize()
+        {
+            Word = Word.Trim();
+        }
     }
 }

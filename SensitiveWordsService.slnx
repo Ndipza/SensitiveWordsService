@@ -1,8 +1,22 @@
 <Solution>
-  <Folder Name="/database/">
+  <Folder Name="/database/" />
+  <Folder Name="/database/migrations/">
     <File Path="init.sql" />
-    <File Path="seed_sensitive_words.sql" />
+  </Folder>
+  <Folder Name="/database/procedures/">
     <File Path="stored_procedures.sql" />
+  </Folder>
+  <Folder Name="/database/seeds/">
+    <File Path="seed_sensitive_words.sql" />
+  </Folder>
+  <Folder Name="/docs/">
+    <File Path="../../../Downloads/architecture-diagram.png" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="ARCHITECTURE_DIAGRAMS.md" />
+    <File Path="DESIGN_RATIONALE.md" />
+    <File Path="README.md" />
+    <File Path="SYSTEM_REQUIREMENTS.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SensitiveWords.Api/SensitiveWords.Api.csproj" />

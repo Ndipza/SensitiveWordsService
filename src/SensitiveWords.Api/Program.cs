@@ -1,97 +1,140 @@
+using Asp.Versioning;
 using FluentValidation;
 using Microsoft.AspNetCore.RateLimiting;
-using SensitiveWords.Api.Filters;
 using SensitiveWords.Api.Middleware;
-using SensitiveWords.Application.Interfaces;
-using SensitiveWords.Application.Services;
-using SensitiveWords.Application.Validator;
-using SensitiveWords.Infrastructure;
+using SensitiveWords.Application.DependencyInjection;
+using SensitiveWords.Application.HealthChecks;
+using SensitiveWords.Application.Validators;
 using SensitiveWords.Infrastructure.DependencyInjection;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (builder.Environment.IsEnvironment("Testing"))
-{
-    builder.Services.AddSingleton<ISensitiveWordRepository, InMemorySensitiveWordRepository>();
-}
-
+//
 // Controllers + Validation Filter
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ValidationFilter>();
-})
-.AddJsonOptions(o =>
-{
-    o.JsonSerializerOptions.DefaultBufferSize = 16 * 1024;
-});
+//
+builder.Services
+    .AddControllers(options =>
+    {
+        options.Filters.Add<ValidationFilter>();
+    })
+    .AddJsonOptions(options =>
+    {
+        // Force MVC JSON serializer pipeline (avoids PipeWriter issue in TestServer)
+        options.JsonSerializerOptions.WriteIndented = false;
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-    options.SerializerOptions.DefaultBufferSize = 16 * 1024;
-});
-
+//
 // Swagger
+//
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Infrastructure (DB, repositories etc.)
+//
+// Application + Infrastructure
+//
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// Application Services
-builder.Services.AddScoped<ISensitiveWordService, SensitiveWordService>();
-builder.Services.AddScoped<SanitizationService>();
-
-// Trie Engine (Singleton)
-builder.Services.AddSingleton<ISensitiveWordEngine, SensitiveWordEngine>();
-
-// Background loader (loads words on startup)
-builder.Services.AddHostedService<SensitiveWordEngineLoader>();
-
-// Validation
+//
+// FluentValidation
+//
 builder.Services.AddValidatorsFromAssemblyContaining<CreateSensitiveWordRequestValidator>();
 
+//
 // Filters
+//
 builder.Services.AddScoped<ValidationFilter>();
 
+//
 // Rate Limiting
-builder.Services.AddRateLimiter(options =>
+//
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    options.AddFixedWindowLimiter("SanitizePolicy", opt =>
+    builder.Services.AddRateLimiter(options =>
     {
-        opt.PermitLimit = 100;
-        opt.Window = TimeSpan.FromSeconds(10);
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 10;
+        options.AddFixedWindowLimiter("SanitizePolicy", opt =>
+        {
+            opt.PermitLimit = 100;
+            opt.Window = TimeSpan.FromSeconds(10);
+            opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            opt.QueueLimit = 10;
+        });
     });
-});
+}
 
+//
 // Health Checks
-builder.Services
-    .AddHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+//
+var healthChecks = builder.Services.AddHealthChecks();
+
+healthChecks.AddCheck<TrieHealthCheck>("trie");
+
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    healthChecks.AddSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"));
+}
+
+//
+// API Versioning
+//
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+});
 
 var app = builder.Build();
 
+//
+// Authentication & Authorization (disabled for Integration Tests)
+//
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
+
+//
 // Swagger
+//
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Middleware Pipeline
+//
+// HTTPS
+//
 app.UseHttpsRedirection();
 
-app.UseRateLimiter();
-
+//
+// Middleware (disabled for Integration Tests)
+//
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
-app.UseMiddleware<ExceptionMiddleware>();
 
+//
+// Rate Limiter
+//
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseRateLimiter();
+}
+
+//
 // Endpoints
+//
 app.MapControllers();
 
+//
+// Health Endpoints
+//
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
 

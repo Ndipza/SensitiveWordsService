@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SensitiveWords.Application.DTOs.Sanitization;
 
-namespace SensitiveWords.Application.Validator
+namespace SensitiveWords.Application.Validators
 {
     public class SanitizeRequestValidator : AbstractValidator<SanitizeRequest>
     {
@@ -10,9 +10,6 @@ namespace SensitiveWords.Application.Validator
             RuleFor(x => x.Input)
                 .NotEmpty()
                 .WithMessage("Input text is required.")
-
-                .MinimumLength(1)
-                .WithMessage("Input text cannot be empty.")
 
                 .MaximumLength(5000)
                 .WithMessage("Input text cannot exceed 5000 characters.");

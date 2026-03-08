@@ -1,10 +1,11 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using SensitiveWords.Application.Interfaces;
 using System.Data;
 
 namespace SensitiveWords.Infrastructure.Database
 {
-    public class DbConnectionFactory
+    public class DbConnectionFactory : IDbConnectionFactory
     {
         private readonly IConfiguration _configuration;
 

@@ -23,6 +23,8 @@ namespace SensitiveWords.Application.Services
 
         public SensitiveWordTrie Trie => _trie;
 
+        public bool IsInitialized { get; private set; }
+
         public async Task ReloadAsync()
         {
             _logger.LogInformation("Reloading sensitive words into Trie.");

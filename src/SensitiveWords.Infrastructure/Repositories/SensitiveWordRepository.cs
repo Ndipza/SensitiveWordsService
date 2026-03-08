@@ -4,18 +4,17 @@ using Microsoft.Extensions.Logging;
 using SensitiveWords.Application.Exceptions;
 using SensitiveWords.Application.Interfaces;
 using SensitiveWords.Domain.Entities;
-using SensitiveWords.Infrastructure.Database;
 using System.Data;
 
 namespace SensitiveWords.Infrastructure.Repositories
 {
     public class SensitiveWordRepository : ISensitiveWordRepository
     {
-        private readonly DbConnectionFactory _connectionFactory;
+        private readonly IDbConnectionFactory _connectionFactory;
         private readonly ILogger<SensitiveWordRepository> _logger;
 
         public SensitiveWordRepository(
-            DbConnectionFactory connectionFactory,
+            IDbConnectionFactory connectionFactory,
             ILogger<SensitiveWordRepository> logger)
         {
             _connectionFactory = connectionFactory;

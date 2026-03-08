@@ -1,4 +1,6 @@
-﻿namespace SensitiveWords.Api.Middleware
+﻿using SensitiveWords.Api.Extensions;
+
+namespace SensitiveWords.Api.Middleware
 {
     public class RequestLoggingMiddleware
     {
@@ -17,19 +19,23 @@
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
+            var correlationId = context.GetCorrelationId();
+
             _logger.LogInformation(
-                "Incoming request {Method} {Path}",
+                "Incoming request {Method} {Path} CorrelationId:{CorrelationId}",
                 context.Request.Method,
-                context.Request.Path);
+                context.Request.Path,
+                correlationId);
 
             await _next(context);
 
             stopwatch.Stop();
 
             _logger.LogInformation(
-                "Request completed {StatusCode} in {Elapsed}ms",
+                "Request completed {StatusCode} in {Elapsed}ms CorrelationId:{CorrelationId}",
                 context.Response.StatusCode,
-                stopwatch.ElapsedMilliseconds);
+                stopwatch.ElapsedMilliseconds,
+                correlationId);
         }
     }
 }

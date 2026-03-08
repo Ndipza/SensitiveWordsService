@@ -1,50 +1,31 @@
 ﻿using Microsoft.Extensions.Logging;
-using SensitiveWords.Application.Algorithms;
 using SensitiveWords.Application.Interfaces;
 
-namespace SensitiveWords.Application.Services
+public class SanitizationService : ISanitizationService
 {
-    public class SanitizationService
+    private readonly ISensitiveWordEngine _engine;
+    private readonly ILogger<SanitizationService> _logger;
+
+    public SanitizationService(
+        ISensitiveWordEngine engine,
+        ILogger<SanitizationService> logger)
     {
-        private readonly ISensitiveWordEngine _engine;
-        private readonly ILogger<SanitizationService> _logger;
+        _engine = engine;
+        _logger = logger;
+    }
 
-        public SanitizationService(
-            ISensitiveWordEngine engine,
-            ILogger<SanitizationService> logger)
+    public string Sanitize(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
         {
-            _engine = engine;
-            _logger = logger;
+            _logger.LogWarning("Sanitize called with empty input.");
+            return input ?? string.Empty;
         }
 
-        public string Sanitize(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                _logger.LogWarning("Sanitize called with empty input.");
-                return input ?? string.Empty;
-            }
+        _logger.LogDebug("Sanitizing input of length {Length}", input.Length);
 
-            try
-            {
-                _logger.LogDebug(
-                    "Sanitizing text with length {Length}",
-                    input.Length);
+        var matcher = new SensitiveWordMatcher(_engine.Trie);
 
-                var matcher = new SensitiveWordMatcher(_engine.Trie);
-
-                var result = matcher.Sanitize(input);
-
-                _logger.LogDebug("Sanitization completed.");
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while sanitizing input.");
-
-                throw;
-            }
-        }
+        return matcher.Sanitize(input);
     }
 }

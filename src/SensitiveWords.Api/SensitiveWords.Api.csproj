@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
     <PackageReference Include="FluentValidation" Version="8.6.3" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="8.6.3" />
@@ -22,11 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SensitiveWords.Application\SensitiveWords.Application.csproj" />
     <ProjectReference Include="..\SensitiveWords.Infrastructure\SensitiveWords.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Configuration\" />
-    <Folder Include="Dockerfile\" />
   </ItemGroup>
 
 </Project>

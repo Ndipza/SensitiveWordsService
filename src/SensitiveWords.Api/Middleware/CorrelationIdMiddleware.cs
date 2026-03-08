@@ -2,7 +2,7 @@
 {
     public class CorrelationIdMiddleware
     {
-        private const string HeaderName = "X-Correlation-ID";
+        private const string CorrelationHeader = "X-Correlation-ID";
 
         private readonly RequestDelegate _next;
         private readonly ILogger<CorrelationIdMiddleware> _logger;
@@ -17,18 +17,15 @@
 
         public async Task Invoke(HttpContext context)
         {
-            var correlationId = context.Request.Headers[HeaderName].FirstOrDefault();
+            var correlationId = context.Request.Headers[CorrelationHeader].FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(correlationId))
                 correlationId = Guid.NewGuid().ToString();
 
-            context.Items[HeaderName] = correlationId;
-            context.Response.Headers[HeaderName] = correlationId;
+            context.Items[CorrelationHeader] = correlationId;
+            context.Response.Headers[CorrelationHeader] = correlationId;
 
-            using (_logger.BeginScope(new Dictionary<string, object>
-            {
-                ["CorrelationId"] = correlationId
-            }))
+            using (_logger.BeginScope("CorrelationId:{CorrelationId}", correlationId))
             {
                 await _next(context);
             }

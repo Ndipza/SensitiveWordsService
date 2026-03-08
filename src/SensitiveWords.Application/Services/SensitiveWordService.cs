@@ -31,21 +31,24 @@ namespace SensitiveWords.Application.Services
             return words.Select(w => new SensitiveWordResponse
             {
                 Id = w.Id,
-                Word = w.Word
+                Word = w.Word,
+                CreatedAt = w.CreatedAt
             });
         }
 
         public async Task AddAsync(CreateSensitiveWordRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Word))
+            var normalized = request.Word.Trim();
+
+            if (string.IsNullOrWhiteSpace(normalized))
             {
-                _logger.LogWarning("Attempted to add an empty sensitive word.");
+                _logger.LogWarning("Invalid sensitive word submitted.");
                 throw new ArgumentException("Sensitive word cannot be empty.");
             }
 
             var entity = new SensitiveWord
             {
-                Word = request.Word.Trim()
+                Word = normalized
             };
 
             _logger.LogInformation("Adding sensitive word: {Word}", entity.Word);

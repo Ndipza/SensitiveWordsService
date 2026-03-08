@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace SensitiveWords.Application.Algorithms
+﻿namespace SensitiveWords.Application.Algorithms.Trie
 {
     public sealed class TrieNode
     {

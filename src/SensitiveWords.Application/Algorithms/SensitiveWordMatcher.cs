@@ -1,47 +1,50 @@
-﻿namespace SensitiveWords.Application.Algorithms
+﻿public sealed class SensitiveWordMatcher
 {
-    public sealed class SensitiveWordMatcher
+    private readonly SensitiveWordTrie _trie;
+
+    public SensitiveWordMatcher(SensitiveWordTrie trie)
     {
-        private readonly SensitiveWordTrie _trie;
+        _trie = trie;
+    }
 
-        public SensitiveWordMatcher(SensitiveWordTrie trie)
+    public string Sanitize(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input ?? string.Empty;
+
+        var buffer = input.ToCharArray();
+
+        for (int i = 0; i < buffer.Length; i++)
         {
-            _trie = trie;
-        }
+            var node = _trie.Root;
 
-        public string Sanitize(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return input;
+            int j = i;
+            int lastMatch = -1;
 
-            var buffer = input.ToCharArray();
-
-            for (int i = 0; i < buffer.Length; i++)
+            while (j < buffer.Length &&
+                   node.TryGetChild(char.ToUpperInvariant(buffer[j]), out node))
             {
-                var node = _trie.Root;
-                int j = i;
+                if (node.IsEndOfWord)
+                    lastMatch = j;
 
-                while (j < buffer.Length &&
-                       node.TryGetChild(char.ToUpperInvariant(buffer[j]), out node))
-                {
-                    if (node.IsEndOfWord && node.Word != null)
-                    {
-                        Replace(buffer, i, j);
-                    }
-
-                    j++;
-                }
+                j++;
             }
 
-            return new string(buffer);
+            if (lastMatch != -1)
+            {
+                Replace(buffer, i, lastMatch);
+                i = lastMatch;
+            }
         }
 
-        private static void Replace(char[] buffer, int start, int end)
+        return new string(buffer);
+    }
+
+    private static void Replace(char[] buffer, int start, int end)
+    {
+        for (int i = start; i <= end; i++)
         {
-            for (int i = start; i <= end; i++)
-            {
-                buffer[i] = '*';
-            }
+            buffer[i] = '*';
         }
     }
 }

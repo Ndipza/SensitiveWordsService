@@ -1,7 +1,7 @@
-﻿namespace SensitiveWords.Application.DTOs.Sanitization
+﻿public class SanitizeRequest
 {
-    public class SanitizeRequest
-    {
-        public string Input { get; set; } = string.Empty;
-    }
+    /// <summary>
+    /// Input text to sanitize.
+    /// </summary>
+    public required string Input { get; set; }
 }

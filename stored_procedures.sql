@@ -33,7 +33,6 @@ BEGIN
         Word,
         CreatedAt
     FROM SensitiveWords
-    ORDER BY Word ASC;
 END
 GO
 

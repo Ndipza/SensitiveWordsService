@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SensitiveWords.Application.Interfaces;
 
-namespace SensitiveWords.Application.Services
+namespace SensitiveWords.Application.Services.Engine
 {
     public class SensitiveWordEngineLoader : IHostedService
     {

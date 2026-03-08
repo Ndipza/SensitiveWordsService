@@ -1,15 +1,11 @@
-﻿using SensitiveWords.Application.Algorithms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SensitiveWords.Application.Algorithms.Trie;
 
 namespace SensitiveWords.Application.Interfaces
 {
     public interface ISensitiveWordEngine
     {
         SensitiveWordTrie Trie { get; }
+        bool IsInitialized { get; }
 
         Task ReloadAsync();
 

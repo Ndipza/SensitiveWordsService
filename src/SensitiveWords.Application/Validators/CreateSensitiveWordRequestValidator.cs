@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SensitiveWords.Application.DTOs.SensitiveWords;
 
-namespace SensitiveWords.Application.Validator
+namespace SensitiveWords.Application.Validators
 {
     public class CreateSensitiveWordRequestValidator
     : AbstractValidator<CreateSensitiveWordRequest>

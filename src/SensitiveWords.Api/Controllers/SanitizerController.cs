@@ -1,63 +1,60 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using SensitiveWords.Api.Swagger.Examples;
 using SensitiveWords.Application.DTOs.Sanitization;
 using SensitiveWords.Application.Interfaces;
-using System.Text.Json;
+using Swashbuckle.AspNetCore.Filters;
 
-namespace SensitiveWords.Api.Controllers
+namespace SensitiveWords.Api.Controllers;
+
+/// <summary>
+/// Handles text sanitization by masking sensitive words.
+/// </summary>
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/sanitizer")]
+[Tags("Sanitizer")]
+[EnableRateLimiting("SanitizePolicy")]
+public sealed class SanitizerController : ControllerBase
 {
+    private readonly ISanitizationService _service;
+    private readonly ILogger<SanitizerController> _logger;
+
     /// <summary>
-    /// Handles text sanitization by masking sensitive words.
+    /// Initializes a new instance of the SanitizerController class with the specified sanitization service and logger.
     /// </summary>
-    [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/sanitizer")]
-    [EnableRateLimiting("SanitizePolicy")]
-    public class SanitizerController : ControllerBase
+    /// <param name="service">The service used to perform data sanitization operations. Cannot be null.</param>
+    /// <param name="logger">The logger used to record diagnostic and operational information for the controller. Cannot be null.</param>
+    public SanitizerController(
+        ISanitizationService service,
+        ILogger<SanitizerController> logger)
     {
-        private readonly ISanitizationService _service;
-        private readonly ILogger<SanitizerController> _logger;
+        _service = service;
+        _logger = logger;
+    }
 
-        public SanitizerController(
-            ISanitizationService service,
-            ILogger<SanitizerController> logger)
+    /// <summary>
+    /// Sanitizes input text by masking sensitive words.
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType(typeof(SanitizeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public ActionResult<SanitizeResponse> Sanitize([FromBody] SanitizeRequest request)
+    {
+        _logger.LogInformation("Sanitization request received. Input length: {Length}", request.Input?.Length ?? 0);
+
+        if (string.IsNullOrWhiteSpace(request.Input))
         {
-            _service = service;
-            _logger = logger;
+            _logger.LogWarning("Sanitize request received with empty input.");
+            return BadRequest("Input text cannot be empty.");
         }
 
-        /// <summary>
-        /// Sanitizes input text by masking sensitive words.
-        /// </summary>
-        /// <param name="request">Input text payload</param>
-        /// <returns>Sanitized text</returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(SanitizeResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<SanitizeResponse> Sanitize([FromBody] SanitizeRequest request)
+        var sanitized = _service.Sanitize(request.Input);
+
+        return Ok(new SanitizeResponse
         {
-            if (request == null)
-            {
-                _logger.LogWarning("Sanitize request received with null payload.");
-                return BadRequest("Request body cannot be null.");
-            }
-
-            _logger.LogInformation("Sanitization request received. Input length: {Length}", request.Input?.Length ?? 0);
-
-            if (string.IsNullOrWhiteSpace(request.Input))
-            {
-                _logger.LogWarning("Sanitize request received with empty or whitespace input.");
-                return BadRequest("Input text cannot be empty or whitespace.");
-            }
-
-            var result = _service.Sanitize(request.Input);
-
-            // Workaround: serialize manually to avoid System.Text.Json writing directly to PipeWriter used by TestServer
-            var responseObj = new SanitizeResponse { Output = result };
-            var json = JsonSerializer.Serialize(responseObj);
-
-            return Content(json, "application/json");
-        }
+            Output = sanitized
+        });
     }
 }

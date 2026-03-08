@@ -7,7 +7,7 @@ namespace SensitiveWords.Application.DependencyInjection
 {
     public static class ApplicationServiceRegistration
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
         {
             // Core application services
             services.AddScoped<ISanitizationService, SanitizationService>();

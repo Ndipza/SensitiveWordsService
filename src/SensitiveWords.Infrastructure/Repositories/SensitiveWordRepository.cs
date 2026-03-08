@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SensitiveWords.Application.Exceptions;
 using SensitiveWords.Application.Interfaces;
 using SensitiveWords.Domain.Entities;
+using SensitiveWords.Infrastructure.Database;
 using System.Data;
 
 namespace SensitiveWords.Infrastructure.Repositories
@@ -28,7 +29,7 @@ namespace SensitiveWords.Infrastructure.Repositories
                 using var connection = _connectionFactory.CreateConnection();
 
                 return await connection.QueryAsync<SensitiveWord>(
-                    "spSensitiveWords_GetAll",
+                    StoredProcedures.GetAll,
                     commandType: CommandType.StoredProcedure);
             }
             catch (Exception ex)
@@ -45,7 +46,7 @@ namespace SensitiveWords.Infrastructure.Repositories
                 using var connection = _connectionFactory.CreateConnection();
 
                 return await connection.QueryFirstOrDefaultAsync<SensitiveWord>(
-                    "spSensitiveWords_GetById",
+                    StoredProcedures.GetById,
                     new { Id = id },
                     commandType: CommandType.StoredProcedure);
             }
@@ -63,7 +64,7 @@ namespace SensitiveWords.Infrastructure.Repositories
                 using var connection = _connectionFactory.CreateConnection();
 
                 var id = await connection.ExecuteScalarAsync<int>(
-                    "spSensitiveWords_Insert",
+                    StoredProcedures.Insert,
                     new { Word = word.Word },
                     commandType: CommandType.StoredProcedure);
 
@@ -71,7 +72,7 @@ namespace SensitiveWords.Infrastructure.Repositories
 
                 _logger.LogInformation("Sensitive word '{Word}' inserted with id {Id}", word.Word, id);
             }
-            catch (SqlException ex) when (ex.Number == 50001)
+            catch (SqlException ex) when (ex.Number == SqlErrorCodes.DuplicateSensitiveWord)
             {
                 _logger.LogWarning("Duplicate sensitive word attempt: {Word}", word.Word);
                 throw new DuplicateSensitiveWordException(word.Word);
@@ -90,7 +91,7 @@ namespace SensitiveWords.Infrastructure.Repositories
                 using var connection = _connectionFactory.CreateConnection();
 
                 await connection.ExecuteAsync(
-                    "spSensitiveWords_Update",
+                    StoredProcedures.Update,
                     new
                     {
                         Id = word.Id,
@@ -114,7 +115,7 @@ namespace SensitiveWords.Infrastructure.Repositories
                 using var connection = _connectionFactory.CreateConnection();
 
                 await connection.ExecuteAsync(
-                    "spSensitiveWords_Delete",
+                    StoredProcedures.Delete,
                     new { Id = id },
                     commandType: CommandType.StoredProcedure);
 

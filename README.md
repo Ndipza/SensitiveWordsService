@@ -57,7 +57,7 @@ The project follows **Clean Architecture principles** separating API, Applicatio
 ### Swagger API Documentation
 
 <p align="center">
-  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="700"/>
+  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="750"/>
 </p>
 
 The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.

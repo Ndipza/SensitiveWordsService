@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SensitiveWords.Application.Algorithms;
 using SensitiveWords.Application.Interfaces;
 
 namespace SensitiveWords.Application.Services

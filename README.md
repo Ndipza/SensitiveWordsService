@@ -48,7 +48,7 @@ A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive w
 ## 🏗 Architecture
 The project follows **Clean Architecture principles** separating API, Application, Domain, and Infrastructure layers.
 
-![Architecture Diagram](docs/images/architecture-diagram.png)
+![Architecture Diagram](./docs/images/architecture-diagram.png)
 
 ---
 
@@ -57,7 +57,7 @@ The project follows **Clean Architecture principles** separating API, Applicatio
 ### Swagger API Documentation
 
 <p align="center">
-  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="700"/>
+  <img src="./docs/images/swagger-preview.png" alt="Swagger UI" width="700"/>
 </p>
 
 The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.
@@ -204,7 +204,7 @@ The project follows **Clean Architecture principles**, ensuring clear separation
 
 # System Architecture Diagram
 
-![Architecture](docs/images/architecture-diagram.png)
+![Architecture Diagram](./docs/images/architecture-diagram.png)
 
 ```
                   +-------------------+

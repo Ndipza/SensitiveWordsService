@@ -1,0 +1,43 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Tests with Coverage
+        run: dotnet test --collect:"XPlat Code Coverage"
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate Coverage Report
+        run: |
+          reportgenerator \
+          -reports:**/coverage.cobertura.xml \
+          -targetdir:docs/coverage \
+          -reporttypes:"Html;Badges"
+
+      - name: Commit Coverage Badge
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add docs/coverage
+          git commit -m "Update coverage badge" || echo "No changes"
+          git push

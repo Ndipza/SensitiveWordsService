@@ -16,6 +16,26 @@ A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive w
 ## ✨ Overview
 A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive words using an in-memory Trie-based pattern matching algorithm.
 
+## 🧰 Tech Stack
+
+<p>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dotnetcore/dotnetcore-original.svg" width="40" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" width="40" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg" width="40" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="40" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="40" />
+</p>
+
+**Core Technologies**
+
+- ASP.NET Core (.NET 9)
+- C#
+- SQL Server
+- Dapper
+- FluentValidation
+- Swagger / OpenAPI
+- GitHub Actions (CI/CD)
+
 ## 🚀 Features
 - Trie-based sensitive word detection
 - High-performance in-memory text scanning
@@ -36,7 +56,9 @@ The project follows **Clean Architecture principles** separating API, Applicatio
 
 ### Swagger API Documentation
 
-![Swagger UI](docs/swagger-preview.png)
+<p align="center">
+  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="700"/>
+</p>
 
 The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.
 
@@ -354,24 +376,30 @@ Example connection string:
 
 ---
 
-# Documentation
+# Project Documentation
 
-Detailed documentation for the project can be found in the `docs` folder.
+This folder contains detailed documentation for the **Sensitive Words Service** project.
+
+## Documentation Index
 
 ### Architecture
 
-- [Architecture Diagrams](docs/ARCHITECTURE_DIAGRAMS.md)
-- [Design Rationale](docs/DESIGN_RATIONALE.md)
+- [Architecture Diagrams](ARCHITECTURE_DIAGRAMS.md)
+- [Design Rationale](DESIGN_RATIONALE.md)
 
 ### Project Setup
 
-- [Running The Project](docs/RUNNING_THE_PROJECT.md)
-- [Project Structure](docs/PROJECT_STRUCTURE.md)
+- [Running the Project](RUNNING_THE_PROJECT.md)
+- [Project Structure](PROJECT_STRUCTURE.md)
 
 ### Development
 
-- [Testing Strategy](docs/TESTING.md)
-- [API Examples](docs/API_EXAMPLES.md)
+- [Testing Strategy](TESTING.md)
+- [API Examples](API_EXAMPLES.md)
+
+### Assets
+
+Images used in documentation are located in:
 
 ### Coverage Badge
 

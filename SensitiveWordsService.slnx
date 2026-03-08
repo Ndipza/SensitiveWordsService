@@ -18,6 +18,7 @@
     <File Path="ARCHITECTURE_DIAGRAMS.md" />
     <File Path="DESIGN_RATIONALE.md" />
     <File Path="PROJECT_STRUCTURE.md" />
+    <File Path="README.md" />
     <File Path="RUNNING_THE_PROJECT.md" />
     <File Path="TESTING.md" />
   </Folder>
@@ -27,9 +28,6 @@
   <Folder Name="/docs/images/">
     <File Path="docs/architecture-diagram.png" />
     <File Path="docs/swagger-preview.png" />
-  </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/SensitiveWords.Api/SensitiveWords.Api.csproj" />

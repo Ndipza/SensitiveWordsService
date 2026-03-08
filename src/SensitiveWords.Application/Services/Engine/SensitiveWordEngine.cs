@@ -10,8 +10,12 @@ namespace SensitiveWords.Application.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<SensitiveWordEngine> _logger;
 
-        private SensitiveWordTrie _trie = new();
         private readonly object _lock = new();
+        private SensitiveWordTrie _trie = new();
+
+        public SensitiveWordTrie Trie => _trie;
+
+        public bool IsInitialized { get; private set; }
 
         public SensitiveWordEngine(
             IServiceProvider serviceProvider,
@@ -21,53 +25,38 @@ namespace SensitiveWords.Application.Services
             _logger = logger;
         }
 
-        public SensitiveWordTrie Trie => _trie;
-
-        public bool IsInitialized { get; private set; }
-
         public async Task ReloadAsync()
         {
             _logger.LogInformation("Reloading sensitive words into Trie.");
 
-            try
+            using var scope = _serviceProvider.CreateScope();
+
+            var repository = scope.ServiceProvider
+                .GetRequiredService<ISensitiveWordRepository>();
+
+            var words = await repository.GetAllAsync();
+
+            var newTrie = new SensitiveWordTrie();
+            int count = 0;
+
+            foreach (var word in words)
             {
-                using var scope = _serviceProvider.CreateScope();
+                if (string.IsNullOrWhiteSpace(word.Word))
+                    continue;
 
-                var repository = scope.ServiceProvider
-                    .GetRequiredService<ISensitiveWordRepository>();
-
-                var words = await repository.GetAllAsync();
-
-                var trie = new SensitiveWordTrie();
-
-                int count = 0;
-
-                foreach (var word in words)
-                {
-                    if (string.IsNullOrWhiteSpace(word.Word))
-                        continue;
-
-                    trie.AddWord(word.Word);
-                    count++;
-                }
-
-                lock (_lock)
-                {
-                    _trie = trie;
-                }
-
-                _logger.LogInformation(
-                    "Sensitive word Trie successfully reloaded with {Count} words.",
-                    count);
+                newTrie.AddWord(word.Word.ToUpperInvariant());
+                count++;
             }
-            catch (Exception ex)
+
+            lock (_lock)
             {
-                _logger.LogError(
-                    ex,
-                    "Failed to reload sensitive words from repository.");
-
-                throw;
+                _trie = newTrie;
+                IsInitialized = true;
             }
+
+            _logger.LogInformation(
+                "Sensitive word Trie successfully reloaded with {Count} words.",
+                count);
         }
 
         public void AddWord(string word)
@@ -78,24 +67,12 @@ namespace SensitiveWords.Application.Services
                 return;
             }
 
-            try
+            lock (_lock)
             {
-                lock (_lock)
-                {
-                    _trie.AddWord(word.ToUpperInvariant());
-                }
-
-                _logger.LogInformation("Sensitive word added to Trie: {Word}", word);
+                _trie.AddWord(word.ToUpperInvariant());
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error adding sensitive word {Word} to Trie.",
-                    word);
 
-                throw;
-            }
+            _logger.LogInformation("Sensitive word added to Trie: {Word}", word);
         }
 
         public void RemoveWord(string word)
@@ -106,24 +83,12 @@ namespace SensitiveWords.Application.Services
                 return;
             }
 
-            try
+            lock (_lock)
             {
-                lock (_lock)
-                {
-                    _trie.RemoveWord(word.ToUpperInvariant());
-                }
-
-                _logger.LogInformation("Sensitive word removed from Trie: {Word}", word);
+                _trie.RemoveWord(word.ToUpperInvariant());
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error removing sensitive word {Word} from Trie.",
-                    word);
 
-                throw;
-            }
+            _logger.LogInformation("Sensitive word removed from Trie: {Word}", word);
         }
     }
 }

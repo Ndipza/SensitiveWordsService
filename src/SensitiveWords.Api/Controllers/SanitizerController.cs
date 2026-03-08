@@ -4,57 +4,72 @@ using Microsoft.AspNetCore.RateLimiting;
 using SensitiveWords.Api.Swagger.Examples;
 using SensitiveWords.Application.DTOs.Sanitization;
 using SensitiveWords.Application.Interfaces;
+using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
-namespace SensitiveWords.Api.Controllers;
-
-/// <summary>
-/// Handles text sanitization by masking sensitive words.
-/// </summary>
-[ApiController]
-[ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/sanitizer")]
-[Tags("Sanitizer")]
-[EnableRateLimiting("SanitizePolicy")]
-public sealed class SanitizerController : ControllerBase
+namespace SensitiveWords.Api.Controllers
 {
-    private readonly ISanitizationService _service;
-    private readonly ILogger<SanitizerController> _logger;
-
     /// <summary>
-    /// Initializes a new instance of the SanitizerController class with the specified sanitization service and logger.
+    /// Provides endpoints for sanitizing text by masking sensitive words.
     /// </summary>
-    /// <param name="service">The service used to perform data sanitization operations. Cannot be null.</param>
-    /// <param name="logger">The logger used to record diagnostic and operational information for the controller. Cannot be null.</param>
-    public SanitizerController(
-        ISanitizationService service,
-        ILogger<SanitizerController> logger)
+    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/sanitizer")]
+    [Tags("Sanitizer")]
+    [EnableRateLimiting("SanitizePolicy")]
+    public sealed class SanitizerController : ControllerBase
     {
-        _service = service;
-        _logger = logger;
-    }
+        private readonly ISanitizationService _service;
+        private readonly ILogger<SanitizerController> _logger;
 
-    /// <summary>
-    /// Sanitizes input text by masking sensitive words.
-    /// </summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(SanitizeResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public ActionResult<SanitizeResponse> Sanitize([FromBody] SanitizeRequest request)
-    {
-        _logger.LogInformation("Sanitization request received. Input length: {Length}", request.Input?.Length ?? 0);
-
-        if (string.IsNullOrWhiteSpace(request.Input))
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SanitizerController"/>.
+        /// </summary>
+        /// <param name="service">Service responsible for sanitizing text.</param>
+        /// <param name="logger">Logger used for diagnostics and monitoring.</param>
+        public SanitizerController(
+            ISanitizationService service,
+            ILogger<SanitizerController> logger)
         {
-            _logger.LogWarning("Sanitize request received with empty input.");
-            return BadRequest("Input text cannot be empty.");
+            _service = service;
+            _logger = logger;
         }
 
-        var sanitized = _service.Sanitize(request.Input);
-
-        return Ok(new SanitizeResponse
+        /// <summary>
+        /// Sanitizes input text by masking sensitive words.
+        /// </summary>
+        /// <param name="request">Request containing the input text to sanitize.</param>
+        /// <returns>The sanitized output with sensitive words masked.</returns>
+        [HttpPost]
+        [SwaggerOperation(
+            Summary = "Sanitize input text",
+            Description = "Receives a text string and replaces sensitive words with masked characters."
+        )]
+        [SwaggerRequestExample(typeof(SanitizeRequest), typeof(SanitizeRequestExample))]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(SanitizeResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorExample))]
+        [ProducesResponseType(typeof(SanitizeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public ActionResult<SanitizeResponse> Sanitize(
+            [FromBody, SwaggerParameter("Input text payload to sanitize", Required = true)]
+        SanitizeRequest request)
         {
-            Output = sanitized
-        });
+            _logger.LogInformation("Sanitization request received. Input length: {Length}", request.Input?.Length ?? 0);
+
+            if (string.IsNullOrWhiteSpace(request.Input))
+            {
+                _logger.LogWarning("Sanitize request received with empty input.");
+                return BadRequest("Input text cannot be empty.");
+            }
+
+            var sanitized = _service.Sanitize(request.Input);
+
+            return Ok(new SanitizeResponse
+            {
+                Output = sanitized
+            });
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿# Sensitive Words Service
 
+A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive words using a Trie-based matching algorithm.
+
 **Author:** Ndiphiwe Nombula  
-**Role:** Senior Backend Developer Assessment
+**Role:** Senior Software Developer (C#) Assessment
 
 ![.NET](https://img.shields.io/badge/.NET-9-blue)
 ![SQL Server](https://img.shields.io/badge/Database-SQL%20Server-green)
@@ -9,6 +11,57 @@
 ![Algorithm](https://img.shields.io/badge/Algorithm-Trie-purple)
 ![Build](https://github.com/Ndipza/SensitiveWordsService/actions/workflows/tests.yml/badge.svg)
 ![Coverage](docs/coverage/badge_linecoverage.svg)
+---
+
+## ✨ Overview
+A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive words using an in-memory Trie-based pattern matching algorithm.
+
+## 🚀 Features
+- Trie-based sensitive word detection
+- High-performance in-memory text scanning
+- RESTful ASP.NET Core API
+- Clean Architecture implementation
+- SQL Server stored procedures
+- Automated testing with xUnit
+- CI pipeline with GitHub Actions
+
+## 🏗 Architecture
+The project follows **Clean Architecture principles** separating API, Application, Domain, and Infrastructure layers.
+
+![Architecture Diagram](docs/images/architecture-diagram.png)
+
+---
+
+## Preview
+
+### Swagger API Documentation
+
+![Swagger UI](docs/swagger-preview.png)
+
+The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.
+
+### Key Endpoints
+
+| Method | Endpoint | Description |
+|------|---------|-------------|
+| GET | /api/v1/sensitive-words | Retrieve all sensitive words |
+| POST | /api/v1/sensitive-words | Add a new sensitive word |
+| PUT | /api/v1/sensitive-words/{id} | Update an existing sensitive word |
+| DELETE | /api/v1/sensitive-words/{id} | Delete a sensitive word |
+| POST | /api/v1/sanitizer | Sanitize input text |
+
+---
+
+## Project Status
+
+This project was developed as part of a **Senior Backend Developer technical assessment** and demonstrates:
+
+- Clean Architecture principles
+- High-performance text processing using a Trie data structure
+- RESTful API design
+- Automated testing and CI pipeline integration
+- Production-ready engineering practices
+
 ---
 
 ## Table of Contents
@@ -29,15 +82,6 @@
 
 ---
 
-# Overview
-
-SensitiveWordsService is a **high-performance ASP.NET Core Web API** that detects and sanitizes sensitive words using a **Trie-based in-memory matching algorithm**.
-
-Sensitive words are loaded into memory during application startup to eliminate repeated database queries and enable extremely fast text scanning.
-
-The service exposes **RESTful endpoints** for managing sensitive words and sanitizing text input.
-
----
 
 # Key Features
 
@@ -137,6 +181,8 @@ The project follows **Clean Architecture principles**, ensuring clear separation
 ---
 
 # System Architecture Diagram
+
+![Architecture](docs/images/architecture-diagram.png)
 
 ```
                   +-------------------+
@@ -402,5 +448,5 @@ The service ensures reliability by:
 # Author
 
 **Ndiphiwe Nombula**  
-Senior Backend Developer
+Senior Software Developer (C#)
 

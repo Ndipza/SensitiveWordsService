@@ -14,7 +14,6 @@
     <File Path="seed_sensitive_words.sql" />
   </Folder>
   <Folder Name="/docs/">
-    <File Path="../../../Downloads/architecture-diagram.png" />
     <File Path="API_EXAMPLES.md" />
     <File Path="ARCHITECTURE_DIAGRAMS.md" />
     <File Path="DESIGN_RATIONALE.md" />
@@ -24,6 +23,10 @@
   </Folder>
   <Folder Name="/docs/coverage/">
     <File Path="badge_linecoverage.svg" />
+  </Folder>
+  <Folder Name="/docs/images/">
+    <File Path="docs/architecture-diagram.png" />
+    <File Path="docs/swagger-preview.png" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="README.md" />

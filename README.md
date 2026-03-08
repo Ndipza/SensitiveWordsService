@@ -7,7 +7,7 @@
 ![SQL Server](https://img.shields.io/badge/Database-SQL%20Server-green)
 ![Architecture](https://img.shields.io/badge/Architecture-Clean-orange)
 ![Algorithm](https://img.shields.io/badge/Algorithm-Trie-purple)
-![Build](https://img.shields.io/github/actions/workflow/status/Ndipza/SensitiveWordsService/tests.yml)
+![Build Status](https://img.shields.io/github/actions/workflow/status/Ndipza/SensitiveWordsService/tests.yml?branch=master&label=build)
 ![Coverage](docs/coverage/badge_linecoverage.svg)
 ---
 
@@ -61,7 +61,7 @@ The service exposes **RESTful endpoints** for managing sensitive words and sanit
 ## 1 Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/SensitiveWordsService.git
+git clone https://github.com/Ndipza/SensitiveWordsService.git
 cd SensitiveWordsService
 ```
 
@@ -247,10 +247,9 @@ database
 docs
  ├ API_EXAMPLES.md
  ├ DESIGN_RATIONALE.md
- ├ Architecture Diagrams.md
+ ├ ARCHITECTURE_DIAGRAMS.md
  ├ PROJECT_STRUCTURE.md
  ├ RUNNING_THE_PROJECT.md
- ├ SYSTEM_REQUIREMENTS.md
  └ TESTING.md
 ```
 

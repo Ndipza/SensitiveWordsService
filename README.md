@@ -7,7 +7,7 @@
 ![SQL Server](https://img.shields.io/badge/Database-SQL%20Server-green)
 ![Architecture](https://img.shields.io/badge/Architecture-Clean-orange)
 ![Algorithm](https://img.shields.io/badge/Algorithm-Trie-purple)
-![Build Status](https://img.shields.io/github/actions/workflow/status/Ndipza/SensitiveWordsService/tests.yml?branch=master&label=build)
+![Build](https://github.com/Ndipza/SensitiveWordsService/actions/workflows/tests.yml/badge.svg)
 ![Coverage](docs/coverage/badge_linecoverage.svg)
 ---
 

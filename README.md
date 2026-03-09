@@ -170,6 +170,23 @@ dotnet test
 
 ---
 
+## 5 Test Coverage
+
+The project uses XPlat Code Coverage and ReportGenerator to generate local coverage reports.
+
+Generate Coverage Report
+
+Run the following command from the solution root:
+
+```bash 
+dotnet test --collect:"XPlat Code Coverage" ; reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:"Html;TextSummary"
+```
+
+Open Coverage Report
+start coverage-report/index.html
+
+---
+
 # Docker Setup
 
 ## Install Docker

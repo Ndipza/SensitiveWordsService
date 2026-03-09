@@ -1,0 +1,11 @@
+bin/
+obj/
+.git/
+.gitignore
+.vs/
+node_modules/
+coverage-report/
+docs/coverage/
+README.md
+Dockerfile
+docker-compose.yml

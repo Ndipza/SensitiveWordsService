@@ -11,33 +11,163 @@ This document explains the project structure, how to run the project, testing st
 ```
 SensitiveWordsService
 │
-├── SensitiveWords.API
-│   ├── Controllers
-│   ├── Middleware
-│   ├── Filters
-│   └── Program.cs
+├── .github
+│   └── workflows
+│       └── tests.yml
 │
-├── SensitiveWords.Application
-│   ├── Services
-│   ├── DTOs
-│   └── Validators
+├── database
+│   ├── migrations
+│   │   └── init.sql
+│   │
+│   ├── procedures
+│   │   └── stored_procedures.sql
+│   │
+│   └── seeds
+│       └── seed_sensitive_words.sql
 │
-├── SensitiveWords.Domain
-│   ├── Algorithms
-│   │   ├── Trie
-│   │   └── SensitiveWordMatcher
-│   └── Models
+├── docs
+│   ├── coverage
+│   │   └── badge_linecoverage.svg
+│   │
+│   └── images
+│       ├── architecture-diagram.png
+│       └── swagger-preview.png
 │
-├── SensitiveWords.Infrastructure
-│   ├── Repositories
-│   └── Database
+├── src
+│   ├── SensitiveWords.Api
+│   │
+│   │   ├── Configuration
+│   │   │   ├── ControllerConfiguration.cs
+│   │   │   ├── EndpointConfiguration.cs
+│   │   │   ├── HealthChecksConfiguration.cs
+│   │   │   ├── MiddlewareConfiguration.cs
+│   │   │   ├── RateLimitingConfiguration.cs
+│   │   │   ├── SwaggerConfiguration.cs
+│   │   │   ├── ValidationConfiguration.cs
+│   │   │   └── VersioningConfiguration.cs
+│   │
+│   │   ├── Controllers
+│   │   │   ├── SanitizerController.cs
+│   │   │   └── SensitiveWordsController.cs
+│   │
+│   │   ├── Extensions
+│   │   │   ├── HttpContextExtensions.cs
+│   │   │   └── ValidationExtensions.cs
+│   │
+│   │   ├── Filters
+│   │   │   └── ValidationFilter.cs
+│   │
+│   │   ├── Middleware
+│   │   │   ├── CorrelationIdMiddleware.cs
+│   │   │   ├── ExceptionMiddleware.cs
+│   │   │   └── RequestLoggingMiddleware.cs
+│   │
+│   │   ├── Swagger
+│   │   │   └── Examples
+│   │   │       ├── BadRequestExample.cs
+│   │   │       ├── CreateSensitiveWordExample.cs
+│   │   │       ├── DuplicateSensitiveWordExample.cs
+│   │   │       ├── InternalServerErrorExample.cs
+│   │   │       ├── NotFoundExample.cs
+│   │   │       ├── SanitizeRequestExample.cs
+│   │   │       └── SanitizeResponseExample.cs
+│   │
+│   │   ├── appsettings.json
+│   │   ├── appsettings.Development.json
+│   │   └── Program.cs
 │
-├── SensitiveWords.Tests
-│   ├── Unit
-│   └── Integration
+│   ├── SensitiveWords.Application
+│   │
+│   │   ├── Algorithms
+│   │   │   └── Trie
+│   │   │       ├── SensitiveWordTrie.cs
+│   │   │       └── TrieNode.cs
+│   │   │
+│   │   ├── DTOs
+│   │   │   ├── Sanitization
+│   │   │   │   ├── SanitizeRequest.cs
+│   │   │   │   └── SanitizeResponse.cs
+│   │   │   │
+│   │   │   └── SensitiveWords
+│   │   │       ├── CreateSensitiveWordRequest.cs
+│   │   │       ├── SensitiveWordResponse.cs
+│   │   │       └── UpdateSensitiveWordRequest.cs
+│   │
+│   │   ├── Exceptions
+│   │   │   ├── DuplicateSensitiveWordException.cs
+│   │   │   └── NotFoundException.cs
+│   │
+│   │   ├── HealthChecks
+│   │   │   └── TrieHealthCheck.cs
+│   │
+│   │   ├── Interfaces
+│   │   │   ├── IDbConnectionFactory.cs
+│   │   │   ├── ISanitizationService.cs
+│   │   │   ├── ISensitiveWordEngine.cs
+│   │   │   ├── ISensitiveWordRepository.cs
+│   │   │   └── ISensitiveWordService.cs
+│   │
+│   │   ├── Services
+│   │   │   ├── Engine
+│   │   │   │   ├── SensitiveWordEngine.cs
+│   │   │   │   └── SensitiveWordEngineLoader.cs
+│   │   │   │
+│   │   │   ├── SanitizationService.cs
+│   │   │   └── SensitiveWordService.cs
+│   │
+│   │   ├── Validators
+│   │   │   ├── CreateSensitiveWordRequestValidator.cs
+│   │   │   └── SanitizeRequestValidator.cs
 │
-└── docs
-    └── architecture
+│   ├── SensitiveWords.Domain
+│   │   └── Entities
+│   │       └── SensitiveWord.cs
+│
+│   └── SensitiveWords.Infrastructure
+│       ├── Database
+│       │   ├── DbConnectionFactory.cs
+│       │   ├── SqlErrorCodes.cs
+│       │   └── StoredProcedures.cs
+│       │
+│       ├── DependencyInjection
+│       │   └── InfrastructureServiceRegistration.cs
+│       │
+│       └── Repositories
+│           └── SensitiveWordRepository.cs
+│
+├── tests
+│   └── SensitiveWords.Tests
+│
+│       ├── Integration
+│       │   └── Controllers
+│       │       ├── SanitizerControllerTests.cs
+│       │       └── SensitiveWordsControllerTests.cs
+│       │
+│       ├── TestHelpers
+│       │   ├── HttpResponseExtensions.cs
+│       │   ├── CustomWebApplicationFactory.cs
+│       │   └── IntegrationTestBase.cs
+│       │
+│       ├── TestUtilities
+│       │   ├── InMemorySensitiveWordRepository.cs
+│       │   └── SensitiveWordEngineFake.cs
+│       │
+│       └── Unit
+│           ├── Algorithms
+│           ├── HealthChecks
+│           ├── Middleware
+│           ├── Services
+│           └── Validators
+│
+├── docker-compose.yml
+├── Dockerfile
+│
+├── README.md
+├── ARCHITECTURE_DIAGRAMS.md
+├── DESIGN_RATIONALE.md
+├── RUNNING_THE_PROJECT.md
+├── TESTING.md
+└── API_EXAMPLES.md
 ```
 
 ## Folder Responsibilities

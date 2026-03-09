@@ -29,6 +29,10 @@
     <File Path="docs/architecture-diagram.png" />
     <File Path="docs/swagger-preview.png" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+    <File Path="Dockerfile" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/SensitiveWords.Api/SensitiveWords.Api.csproj" />
     <Project Path="src/SensitiveWords.Application/SensitiveWords.Application.csproj" />

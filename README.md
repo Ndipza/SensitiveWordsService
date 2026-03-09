@@ -34,6 +34,7 @@ A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive w
 - Dapper
 - FluentValidation
 - Swagger / OpenAPI
+- Docker
 - GitHub Actions (CI/CD)
 
 ## 🚀 Features
@@ -42,14 +43,25 @@ A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive w
 - RESTful ASP.NET Core API
 - Clean Architecture implementation
 - SQL Server stored procedures
-- Automated testing with xUnit
+- FluentValidation request validation
+- Swagger API documentation
+- Global exception handling using ProblemDetails
+- Correlation ID request tracing
+- Structured logging
+- Health check endpoints
+- Unit and integration testing
 - CI pipeline with GitHub Actions
+- Docker containerization
 
 ## 🏗 Architecture
-The project follows **Clean Architecture principles** separating API, Application, Domain, and Infrastructure layers.
+The project follows **Clean Architecture principles** separating concerns between:
+
+- API Layer
+- Application Layer
+- Domain Layer
+- Infrastructure Layer
 
 ![Architecture Diagram](docs/images/architecture-diagram.png)
-
 ---
 
 ## Preview
@@ -78,29 +90,36 @@ The API provides endpoints for managing sensitive words and sanitizing user inpu
 
 This project was developed as part of a **Senior Backend Developer technical assessment** and demonstrates:
 
-- Clean Architecture principles
-- High-performance text processing using a Trie data structure
-- RESTful API design
-- Automated testing and CI pipeline integration
+- Clean Architecture design
+- High-performance Trie-based algorithms
 - Production-ready engineering practices
+- CI/CD automation
+- Docker containerization
+- Comprehensive automated testing
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Quick Start](#quick-start)
-- [API Example](#api-example)
-- [Architecture Summary](#architecture-summary)
-- [System Architecture Diagram](#system-architecture-diagram)
-- [Request Processing Flow](#request-processing-flow)
-- [Project Structure](#project-structure)
-- [Database Setup](#database-setup)
-- [Technology Stack](#technology-stack)
-- [Documentation](#documentation)
-- [Production Considerations](#production-considerations)
-- [Author](#author)
+- Overview
+- Features
+- Quick Start
+- Docker Setup
+- API Example
+- Architecture Summary
+- Request Processing Flow
+- Trie Algorithm Performance
+- System Design Considerations
+- Future Improvements
+- Summary
+- Project Structure
+- Database Setup
+- SQL Error Codes
+- Stored Procedures
+- Technology Stack
+- Documentation
+- Production Considerations
+- Author
 
 ---
 
@@ -149,6 +168,42 @@ https://localhost:7228/swagger
 dotnet test
 ```
 
+---
+
+# Docker Setup
+
+## Install Docker
+Download Docker Desktop from https://www.docker.com/products/docker-desktop and follow the installation instructions for your operating system.
+
+Verify installation:
+```bash
+docker --version
+docker-compose version
+```
+## Build and Run with Docker Compose
+
+Build image:
+```bash
+doker build -t sensitive-words-api .
+```
+
+Run Container:
+```bash
+docker run -d -p 8080:8080 --name sensitive-words-api
+```
+
+Open Swagger:
+```bash
+http://localhost:8080/swagger
+```
+
+## Run with Docker Compose
+`Start both API and SQL Server using Docker Compose:`
+```bash
+docker-compose up --build
+
+docker-compose down
+``
 ---
 
 # API Example
@@ -295,30 +350,357 @@ sequenceDiagram
 
 ---
 
+---
+
+# Trie Algorithm Performance
+
+The sensitive word detection engine uses a **Trie (prefix tree)** data structure to efficiently match multiple patterns within text.
+
+Unlike naive string comparison approaches that repeatedly scan the text for each word, the Trie allows scanning the input **only once**.
+
+## Why Trie?
+
+A Trie is ideal for pattern matching when:
+
+- Multiple keywords must be detected
+- Fast lookup is required
+- Patterns share common prefixes
+- Real-time processing is required
+
+This makes it well suited for:
+
+- Content moderation
+- Chat filtering
+- Input sanitization
+- Security filtering
+
+---
+
+## Complexity Analysis
+
+Let:
+
+N = length of input text
+M = number of sensitive words
+K = average word length
+
+### Trie Construction
+
+Sensitive words are loaded into the Trie during application startup.
+
+Time Complexity: O(M × K)
+Space Complexity: O(M × K)
+
+
+This operation occurs **once at startup**, not during every request.
+
+---
+
+### Text Sanitization
+
+During request processing, the input text is scanned character-by-character.
+
+
+Time Complexity: O(N)
+Space Complexity: O(1)
+
+
+Because the Trie traversal happens in memory, the algorithm avoids repeated string comparisons.
+
+---
+
+## Performance Advantages
+
+Compared with naive approaches:
+
+| Approach | Complexity |
+|--------|-------------|
+Naive word scanning | O(N × M) |
+Trie matching | **O(N)** |
+
+This means performance remains **stable even with large dictionaries of sensitive words**.
+
+---
+
+# System Design Considerations
+
+This service was designed with **production-ready system design principles**.
+
+---
+
+## Stateless API
+
+The API is stateless, meaning it does not store session data.
+
+Benefits:
+
+- Horizontal scalability
+- Load balancing across instances
+- Cloud-native deployment
+
+---
+
+## In-Memory Trie Engine
+
+Sensitive words are loaded into memory during startup:
+
+Database → Trie Engine → In-Memory Matching
+
+
+Benefits:
+
+- Eliminates repeated database queries
+- Extremely fast pattern matching
+- Low latency request processing
+
+---
+
+## Request Processing Pipeline
+
+Client
+↓
+ASP.NET Controller
+↓
+Application Service
+↓
+Trie Matcher
+↓
+Sanitized Response
+
+
+The API layer handles HTTP concerns while the **Application layer manages business logic**.
+
+---
+
+## Database Interaction
+
+Database access is isolated in the **Infrastructure layer**.
+
+The application interacts with SQL Server through:
+
+- Dapper
+- Stored procedures
+- Repository pattern
+
+Benefits:
+
+- Clear separation of concerns
+- Testability
+- Replaceable infrastructure
+
+---
+
+# Future Improvements
+
+Although designed for a technical assessment, the system can be extended for real-world deployments.
+
+### Scalability Improvements
+
+- Redis caching
+- Distributed Trie updates
+- Kubernetes deployment
+- Horizontal API scaling
+
+---
+
+### Security Enhancements
+
+- Authentication and authorization
+- API rate limiting
+- Request throttling
+- Web Application Firewall
+
+---
+
+### Observability
+
+Potential improvements include:
+
+- OpenTelemetry tracing
+- Prometheus metrics
+- Centralized logging with ELK stack
+
+---
+
+# Summary
+
+This project demonstrates a **production-grade backend service** implementing:
+
+- Clean Architecture
+- Trie-based high-performance text filtering
+- RESTful API design
+- SQL Server integration
+- Automated testing
+- CI/CD pipeline
+- Docker containerization
+- Comprehensive documentation
+
+The design emphasizes **performance, maintainability, and scalability**, reflecting best practices expected from a **Senior Software Developer**.
+
+---
+
 # Project Structure
 
 ```
-src
- ├ SensitiveWords.Api
- ├ SensitiveWords.Application
- ├ SensitiveWords.Domain
- └ SensitiveWords.Infrastructure
-
-tests
- └ SensitiveWords.Tests
-
-database
- ├ init.sql
- ├ stored_procedures.sql
- └ seed_sensitive_words.sql
-
-docs
- ├ API_EXAMPLES.md
- ├ DESIGN_RATIONALE.md
- ├ ARCHITECTURE_DIAGRAMS.md
- ├ PROJECT_STRUCTURE.md
- ├ RUNNING_THE_PROJECT.md
- └ TESTING.md
+SensitiveWordsService
+│
+├── .github
+│   └── workflows
+│       └── tests.yml
+│
+├── database
+│   ├── migrations
+│   │   └── init.sql
+│   │
+│   ├── procedures
+│   │   └── stored_procedures.sql
+│   │
+│   └── seeds
+│       └── seed_sensitive_words.sql
+│
+├── docs
+│   ├── coverage
+│   │   └── badge_linecoverage.svg
+│   │
+│   └── images
+│       ├── architecture-diagram.png
+│       └── swagger-preview.png
+│
+├── src
+│   ├── SensitiveWords.Api
+│   │
+│   │   ├── Configuration
+│   │   │   ├── ControllerConfiguration.cs
+│   │   │   ├── EndpointConfiguration.cs
+│   │   │   ├── HealthChecksConfiguration.cs
+│   │   │   ├── MiddlewareConfiguration.cs
+│   │   │   ├── RateLimitingConfiguration.cs
+│   │   │   ├── SwaggerConfiguration.cs
+│   │   │   ├── ValidationConfiguration.cs
+│   │   │   └── VersioningConfiguration.cs
+│   │
+│   │   ├── Controllers
+│   │   │   ├── SanitizerController.cs
+│   │   │   └── SensitiveWordsController.cs
+│   │
+│   │   ├── Extensions
+│   │   │   ├── HttpContextExtensions.cs
+│   │   │   └── ValidationExtensions.cs
+│   │
+│   │   ├── Filters
+│   │   │   └── ValidationFilter.cs
+│   │
+│   │   ├── Middleware
+│   │   │   ├── CorrelationIdMiddleware.cs
+│   │   │   ├── ExceptionMiddleware.cs
+│   │   │   └── RequestLoggingMiddleware.cs
+│   │
+│   │   ├── Swagger
+│   │   │   └── Examples
+│   │   │       ├── BadRequestExample.cs
+│   │   │       ├── CreateSensitiveWordExample.cs
+│   │   │       ├── DuplicateSensitiveWordExample.cs
+│   │   │       ├── InternalServerErrorExample.cs
+│   │   │       ├── NotFoundExample.cs
+│   │   │       ├── SanitizeRequestExample.cs
+│   │   │       └── SanitizeResponseExample.cs
+│   │
+│   │   ├── appsettings.json
+│   │   ├── appsettings.Development.json
+│   │   └── Program.cs
+│
+│   ├── SensitiveWords.Application
+│   │
+│   │   ├── Algorithms
+│   │   │   └── Trie
+│   │   │       ├── SensitiveWordTrie.cs
+│   │   │       └── TrieNode.cs
+│   │   │
+│   │   ├── DTOs
+│   │   │   ├── Sanitization
+│   │   │   │   ├── SanitizeRequest.cs
+│   │   │   │   └── SanitizeResponse.cs
+│   │   │   │
+│   │   │   └── SensitiveWords
+│   │   │       ├── CreateSensitiveWordRequest.cs
+│   │   │       ├── SensitiveWordResponse.cs
+│   │   │       └── UpdateSensitiveWordRequest.cs
+│   │
+│   │   ├── Exceptions
+│   │   │   ├── DuplicateSensitiveWordException.cs
+│   │   │   └── NotFoundException.cs
+│   │
+│   │   ├── HealthChecks
+│   │   │   └── TrieHealthCheck.cs
+│   │
+│   │   ├── Interfaces
+│   │   │   ├── IDbConnectionFactory.cs
+│   │   │   ├── ISanitizationService.cs
+│   │   │   ├── ISensitiveWordEngine.cs
+│   │   │   ├── ISensitiveWordRepository.cs
+│   │   │   └── ISensitiveWordService.cs
+│   │
+│   │   ├── Services
+│   │   │   ├── Engine
+│   │   │   │   ├── SensitiveWordEngine.cs
+│   │   │   │   └── SensitiveWordEngineLoader.cs
+│   │   │   │
+│   │   │   ├── SanitizationService.cs
+│   │   │   └── SensitiveWordService.cs
+│   │
+│   │   ├── Validators
+│   │   │   ├── CreateSensitiveWordRequestValidator.cs
+│   │   │   └── SanitizeRequestValidator.cs
+│
+│   ├── SensitiveWords.Domain
+│   │   └── Entities
+│   │       └── SensitiveWord.cs
+│
+│   └── SensitiveWords.Infrastructure
+│       ├── Database
+│       │   ├── DbConnectionFactory.cs
+│       │   ├── SqlErrorCodes.cs
+│       │   └── StoredProcedures.cs
+│       │
+│       ├── DependencyInjection
+│       │   └── InfrastructureServiceRegistration.cs
+│       │
+│       └── Repositories
+│           └── SensitiveWordRepository.cs
+│
+├── tests
+│   └── SensitiveWords.Tests
+│
+│       ├── Integration
+│       │   └── Controllers
+│       │       ├── SanitizerControllerTests.cs
+│       │       └── SensitiveWordsControllerTests.cs
+│       │
+│       ├── TestHelpers
+│       │   ├── HttpResponseExtensions.cs
+│       │   ├── CustomWebApplicationFactory.cs
+│       │   └── IntegrationTestBase.cs
+│       │
+│       ├── TestUtilities
+│       │   ├── InMemorySensitiveWordRepository.cs
+│       │   └── SensitiveWordEngineFake.cs
+│       │
+│       └── Unit
+│           ├── Algorithms
+│           ├── HealthChecks
+│           ├── Middleware
+│           ├── Services
+│           └── Validators
+│
+├── docker-compose.yml
+├── Dockerfile
+│
+├── README.md
+├── ARCHITECTURE_DIAGRAMS.md
+├── DESIGN_RATIONALE.md
+├── RUNNING_THE_PROJECT.md
+├── TESTING.md
+└── API_EXAMPLES.md
 ```
 
 ---
@@ -360,10 +742,10 @@ Example connection string:
 
 - SQL Server
 - Stored Procedures
+- Dapper
 
 ### Libraries
 
-- Dapper
 - FluentValidation
 - Swashbuckle (Swagger)
 
@@ -429,10 +811,11 @@ Security practices implemented:
 
 - Parameterized stored procedures
 - Input validation using FluentValidation
-- Centralized error handling
+- Centralized exception handling
 - Controlled database access
+- Structured logging
 
-Possible improvements:
+Future improvements:
 
 - API authentication and authorization
 - Rate limiting

@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sensitivewords-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - "1433:1433"
+
+  api:
+    build: .
+    container_name: sensitivewords-api
+    depends_on:
+      - sqlserver
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=SensitiveWordsDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"

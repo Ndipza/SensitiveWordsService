@@ -16,11 +16,16 @@
   <Folder Name="/docs/">
     <File Path="API_EXAMPLES.md" />
     <File Path="ARCHITECTURE_DIAGRAMS.md" />
+    <File Path="ASSESSMENT_REQUIREMENTS.md" />
     <File Path="DESIGN_RATIONALE.md" />
     <File Path="PROJECT_STRUCTURE.md" />
     <File Path="README.md" />
     <File Path="RUNNING_THE_PROJECT.md" />
     <File Path="TESTING.md" />
+  </Folder>
+  <Folder Name="/docs/assessment-requirements/">
+    <File Path="../../../Downloads/SQL Sanitize/SQL Sanitize/Interview-SqlWords.pdf" />
+    <File Path="../../../Downloads/SQL Sanitize/SQL Sanitize/sql_sensitive_list.txt" />
   </Folder>
   <Folder Name="/docs/coverage/">
     <File Path="badge_linecoverage.svg" />

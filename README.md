@@ -1000,6 +1000,13 @@ This folder contains detailed documentation for the **Sensitive Words Service** 
 
 ## Documentation Index
 
+
+### Assessment Requirements
+
+The original assessment documents are included in this repository:
+
+- [Assessment Specification](docs/assessment-requirements/Interview-SqlWords.pdf)
+- [Sensitive Word List](docs/assessment-requirements/sql_sensitive_list.txt)
 ### Architecture
 
 - [Architecture Diagrams](ARCHITECTURE_DIAGRAMS.md)

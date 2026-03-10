@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sensitivewords-sql
@@ -10,12 +9,37 @@ services:
       SA_PASSWORD: "YourStrong!Passw0rd"
     ports:
       - "1433:1433"
+    volumes:
+      - ./database:/scripts
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -C -Q 'SELECT 1' || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  db-init:
+    image: mcr.microsoft.com/mssql-tools
+    container_name: sensitivewords-db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./database:/scripts
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P 'YourStrong!Passw0rd' -i /scripts/migrations/init.sql && /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P 'YourStrong!Passw0rd' -d SensitiveWordsDb -i /scripts/procedures/stored_procedures.sql && /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P 'YourStrong!Passw0rd' -d SensitiveWordsDb -i /scripts/seeds/seed_sensitive_words.sql
 
   api:
     build: .
     container_name: sensitivewords-api
     depends_on:
-      - sqlserver
+      db-init:
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
     environment:

@@ -7,18 +7,21 @@ namespace SensitiveWords.Infrastructure.Database
 {
     public class DbConnectionFactory : IDbConnectionFactory
     {
-        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
 
         public DbConnectionFactory(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         public IDbConnection CreateConnection()
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            return new SqlConnection(_connectionString);
+        }
 
-            return new SqlConnection(connectionString);
+        public string GetConnectionString()
+        {
+            return _connectionString;
         }
     }
 }

@@ -1,5 +1,6 @@
 using SensitiveWords.Api.Configuration;
 using SensitiveWords.Application.DependencyInjection;
+using SensitiveWords.Infrastructure.Database;
 using SensitiveWords.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,14 @@ services
     .AddHealthChecksConfiguration(configuration, environment);
 
 var app = builder.Build();
+
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    await initializer.InitializeAsync();
+}
 
 // ============================================================
 // Middleware Pipeline

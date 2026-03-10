@@ -16,6 +16,26 @@ A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive w
 ## ✨ Overview
 A high-performance ASP.NET Core Web API for detecting and sanitizing sensitive words using an in-memory Trie-based pattern matching algorithm.
 
+## ⚡ Run the Project in One Command
+
+The entire system (API + SQL Server + database initialization) can be started with Docker.
+
+```bash
+docker compose up --build
+```
+
+Once running, open:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+This will start:
+
+* SQL Server
+* Database initialization scripts
+* ASP.NET Core API
+
 ## 🧰 Tech Stack
 
 <p>
@@ -61,222 +81,12 @@ The project follows **Clean Architecture principles** separating concerns betwee
 - Domain Layer
 - Infrastructure Layer
 
-![Architecture Diagram](docs/images/architecture-diagram.png)
----
-
-## Preview
-
-### Swagger API Documentation
-
-<p align="center">
-  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="750"/>
-</p>
-
-The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.
-
-### Key Endpoints
-
-| Method | Endpoint | Description |
-|------|---------|-------------|
-| GET | /api/v1/sensitive-words | Retrieve all sensitive words |
-| POST | /api/v1/sensitive-words | Add a new sensitive word |
-| PUT | /api/v1/sensitive-words/{id} | Update an existing sensitive word |
-| DELETE | /api/v1/sensitive-words/{id} | Delete a sensitive word |
-| POST | /api/v1/sanitizer | Sanitize input text |
-
----
-
-## Project Status
-
-This project was developed as part of a **Senior Backend Developer technical assessment** and demonstrates:
-
-- Clean Architecture design
-- High-performance Trie-based algorithms
-- Production-ready engineering practices
-- CI/CD automation
-- Docker containerization
-- Comprehensive automated testing
-
----
-
-## Table of Contents
-
-- Overview
-- Features
-- Quick Start
-- Docker Setup
-- API Example
-- Architecture Summary
-- Request Processing Flow
-- Trie Algorithm Performance
-- System Design Considerations
-- Future Improvements
-- Summary
-- Project Structure
-- Database Setup
-- SQL Error Codes
-- Stored Procedures
-- Technology Stack
-- Documentation
-- Production Considerations
-- Author
-
----
-
-
-# Key Features
-
-- Trie-based sensitive word detection
-- High-performance text sanitization
-- RESTful ASP.NET Core Web API
-- Clean Architecture implementation
-- SQL Server stored procedures
-- FluentValidation request validation
-- Global exception handling using ProblemDetails
-- Correlation ID request tracing
-- Structured logging
-- Swagger API documentation
-- Health check endpoints
-- Unit and integration testing
-
----
-
-# Quick Start
-
-## 1 Clone the Repository
-
-```bash
-git clone https://github.com/Ndipza/SensitiveWordsService.git
-cd SensitiveWordsService
-```
-
-## 2 Run the API
-
-```bash
-dotnet run --project src/SensitiveWords.Api
-```
-
-## 3 Open Swagger
-
-```
-https://localhost:7228/swagger
-```
-
-## 4 Run Tests
-
-```bash
-dotnet test
-```
-
----
-
-## 5 Test Coverage
-
-The project uses XPlat Code Coverage and ReportGenerator to generate local coverage reports.
-
-Generate Coverage Report
-
-Run the following command from the solution root:
-
-```bash 
-dotnet test --collect:"XPlat Code Coverage" ; reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:"Html;TextSummary"
-```
-
-Open Coverage Report
-start coverage-report/index.html
-
----
-
-# Docker Setup
-
-## Install Docker
-Download Docker Desktop from https://www.docker.com/products/docker-desktop and follow the installation instructions for your operating system.
-
-Verify installation:
-```bash
-docker --version
-docker-compose version
-```
-## Build and Run with Docker Compose
-
-Build image:
-```bash
-doker build -t sensitive-words-api .
-```
-
-Run Container:
-```bash
-docker run -d -p 8080:8080 --name sensitive-words-api
-```
-
-Open Swagger:
-```bash
-http://localhost:8080/swagger
-```
-
-## Run with Docker Compose
-`Start both API and SQL Server using Docker Compose:`
-```bash
-docker-compose up --build
-
-docker-compose down
-``
----
-
-# API Example
-
-### Request
-
-```
-POST /api/v1/sanitizer
-```
-
-```json
-{
-  "input": "SELECT * FROM USERS"
-}
-```
-
-### Response
-
-```json
-{
-  "output": "****** * **** USERS"
-}
-```
-
----
-
-# Architecture Summary
-
-```
-Client
-  ↓
-API Controllers
-  ↓
-Application Services
-  ↓
-Domain Algorithms (Trie + Matcher)
-  ↓
-Infrastructure Repositories
-  ↓
-SQL Server
-```
-
-The project follows **Clean Architecture principles**, ensuring clear separation of responsibilities.
-
-| Layer | Responsibility |
-|------|----------------|
-| API | Controllers, middleware, filters |
-| Application | Business logic and services |
-| Domain | Core models and algorithms |
-| Infrastructure | Database access and repositories |
-
----
-
-# System Architecture Diagram
+Sensitive words are loaded from the database **once during application startup** and stored in a **Trie-based in-memory engine**. This allows extremely fast text scanning without querying the database for each request.
 
 ![Architecture Diagram](docs/images/architecture-diagram.png)
+
+The system follows **Clean Architecture** principles separating API, Application, Domain, and Infrastructure layers.
+
 
 ```
                   +-------------------+
@@ -324,6 +134,25 @@ The project follows **Clean Architecture principles**, ensuring clear separation
 5. Sensitive words are masked in memory.
 6. The sanitized response is returned to the client.
 
+### Sensitive Word Engine Initialization
+
+When the application starts, sensitive words are loaded from the database into an in-memory Trie data structure.
+
+This process is handled by the `SensitiveWordEngineLoader`.
+
+Startup flow:
+
+```
+SQL Server
+   ↓
+Repository (Dapper + Stored Procedures)
+   ↓
+SensitiveWordEngineLoader
+   ↓
+Trie Data Structure (In-Memory Engine)
+```
+
+Once loaded, the Trie is used for all sanitization requests, eliminating repeated database queries and enabling high-performance pattern matching.
 
 ---
 
@@ -335,12 +164,14 @@ Client
 SanitizerController
   ↓
 SanitizationService
-  ↓
+↓
 SensitiveWordMatcher
+↓
+Trie Data Structure (In-Memory Engine)
+↓
+Repositories
   ↓
-Trie
-  ↓
-Sanitized Response
+SQL Server
 ```
 
 Sensitive words are loaded into a Trie during application startup, enabling **extremely fast in-memory pattern matching**.
@@ -366,6 +197,350 @@ sequenceDiagram
 ```
 
 ---
+
+## Preview
+
+### Swagger API Documentation
+
+<p align="center">
+  <img src="docs/images/swagger-preview.png" alt="Swagger UI" width="750"/>
+</p>
+
+The API provides endpoints for managing sensitive words and sanitizing user input using a high-performance Trie-based matching algorithm.
+
+### Key Endpoints
+
+| Method | Endpoint | Description |
+|------|---------|-------------|
+| GET | /api/v1/sensitive-words | Retrieve all sensitive words |
+| POST | /api/v1/sensitive-words | Add a new sensitive word |
+| PUT | /api/v1/sensitive-words/{id} | Update an existing sensitive word |
+| DELETE | /api/v1/sensitive-words/{id} | Delete a sensitive word |
+| POST | /api/v1/sanitizer | Sanitize input text |
+
+---
+
+## Project Status
+
+This project was developed as part of a **Senior Backend Developer technical assessment** and demonstrates:
+
+- Clean Architecture design
+- High-performance Trie-based algorithms
+- Production-ready engineering practices
+- CI/CD automation
+- Docker containerization
+- Comprehensive automated testing
+
+---
+
+## ⭐ Project Highlights
+
+This project demonstrates:
+
+* Clean Architecture design
+* High-performance Trie-based pattern matching
+* RESTful API development with ASP.NET Core
+* SQL Server integration using stored procedures
+* Input validation using FluentValidation
+* Global exception handling using ProblemDetails
+* Automated testing with xUnit
+* CI/CD pipeline with GitHub Actions
+* Docker-based infrastructure setup
+
+---
+
+## Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [Quick Start](#quick-start)
+- [System Requirements](#system-requirements)
+- [Docker Setup](#-docker-setup)
+- [API Example](#api-example)
+- [Architecture Summary](#architecture-summary)
+- [Request Processing Flow](#request-processing-flow)
+- [Trie Algorithm Performance](#trie-algorithm-performance)
+- [System Design Considerations](#system-design-considerations)
+- [Design Tradeoffs](#design-tradeoffs)
+- [Future Improvements](#future-improvements)
+- [Summary](#summary)
+- [Project Structure](#project-structure)
+- [Database Setup](#database-setup)
+- [Technology Stack](#technology-stack)
+- [Production Considerations](#production-considerations)
+- [Author](#author)
+
+---
+
+# System Requirements
+
+- .NET 9 SDK
+- SQL Server or SQL Server Express
+- Docker Desktop (optional for containerized setup)
+
+---
+
+# Quick Start
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/Ndipza/SensitiveWordsService.git
+cd SensitiveWordsService
+```
+
+## 2. Run the API
+
+```bash
+dotnet run --project src/SensitiveWords.Api
+```
+
+## 3. Open Swagger
+
+### If running locally, open:
+```
+https://localhost:7228/swagger
+```
+
+### If running with Docker, open:
+```
+http://localhost:8080/swagger/index.html
+```
+## 4. Run Tests
+
+```bash
+dotnet test
+```
+
+---
+
+## 5. Test Coverage
+
+
+The project uses **Coverlet** and **ReportGenerator** to generate code coverage reports for the test suite.
+
+### Generate Coverage Report
+
+Run the following commands from the **solution root**:
+
+```bash
+dotnet test --configuration Release --collect:"XPlat Code Coverage"
+reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage-report -reporttypes:"Html;TextSummary"
+```
+
+### View Coverage Report
+
+Open the generated report in your browser:
+
+```bash
+start coverage-report/index.html
+```
+
+The HTML report provides detailed coverage information including:
+
+* Line coverage
+* Branch coverage
+* Covered and uncovered code paths
+* Coverage breakdown by project and file
+
+### Coverage Badge
+
+The repository includes an automatically generated coverage badge:
+
+```markdown
+![Coverage](docs/coverage/badge_linecoverage.svg)
+```
+
+This badge is updated by the **GitHub Actions CI pipeline** after each successful test run.
+
+---
+
+## CI Coverage Pipeline
+
+The GitHub Actions workflow automatically:
+
+1. Runs all unit and integration tests
+2. Collects coverage using **Coverlet**
+3. Generates a coverage report using **ReportGenerator**
+4. Updates the coverage badge displayed in the README
+
+---
+
+# 🐳 Docker Setup
+
+The project includes a fully containerized environment using **Docker Compose**.
+
+It automatically starts:
+
+* SQL Server
+* Database initialization container (creates tables, stored procedures, and seed data)
+* ASP.NET Core API
+
+No manual database setup is required.
+
+---
+
+## Prerequisites
+
+Install **Docker Desktop**:
+
+https://www.docker.com/products/docker-desktop
+
+Verify installation:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+## Start the Application
+
+From the project root directory run:
+
+```bash
+docker compose up --build
+```
+
+Docker will automatically:
+
+1. Start **SQL Server**
+2. Run **database initialization scripts**
+3. Create tables and stored procedures
+4. Insert seed sensitive words
+5. Start the **ASP.NET Core API**
+
+---
+
+## Access Swagger UI
+
+Once the containers start, open:
+
+```
+http://localhost:8080/swagger/index.html
+```
+
+---
+
+## Stop the Application
+
+```bash
+docker compose down
+```
+
+---
+
+## Reset the Database (optional)
+
+If you want to recreate the database from scratch:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+This removes the SQL Server volume and re-runs all database scripts.
+
+---
+
+## Docker Architecture
+
+The Docker environment starts services in the following order:
+
+```
+SQL Server
+   ↓
+Database Initialization (db-init)
+   ↓
+ASP.NET Core API
+```
+
+This ensures the API only starts **after the database is fully ready**.
+
+---
+
+# API Example
+
+### Request
+
+```
+POST /api/v1/sanitizer
+```
+
+```json
+{
+  "input": "SELECT * FROM USERS"
+}
+```
+
+### Response
+
+```json
+{
+  "output": "****** * **** USERS"
+}
+```
+
+---
+
+# Architecture Summary
+
+```
+Client
+  ↓
+HTTP Request
+  ↓
+ASP.NET Core Sensitive Words API
+
+Middleware
+• CorrelationIdMiddleware
+• ValidationFilter
+• ExceptionMiddleware
+
+Controllers
+  ↓
+Application Services
+  ↓
+SensitiveWordMatcher
+  ↓
+Trie Data Structure (In-Memory Engine)
+  ↓
+Repositories
+  ↓
+Stored Procedures
+  ↓
+SQL Server
+```
+
+The project follows **Clean Architecture principles**, ensuring clear separation of responsibilities.
+
+| Layer | Responsibility |
+|------|----------------|
+| API | Controllers, middleware, filters |
+| Application | Business logic and services |
+| Domain | Core models and algorithms |
+| Infrastructure | Database access and repositories |
+
+---
+
+## ⚡ Performance Highlights
+
+Sensitive word detection uses a **Trie (Prefix Tree)** algorithm.
+
+Compared with naive string matching:
+
+| Approach       | Complexity |
+| -------------- | ---------- |
+| Naive scanning | O(N × M)   |
+| Trie matching  | **O(N)**   |
+
+Where:
+
+* **N** = length of input text
+* **M** = number of sensitive words
+
+This allows extremely fast in-memory pattern matching even with large dictionaries.
 
 ---
 
@@ -397,8 +572,8 @@ This makes it well suited for:
 
 Let:
 
-N = length of input text
-M = number of sensitive words
+N = length of input text  
+M = number of sensitive words  
 K = average word length
 
 ### Trie Construction
@@ -443,6 +618,20 @@ This means performance remains **stable even with large dictionaries of sensitiv
 
 This service was designed with **production-ready system design principles**.
 
+### Startup Data Loading
+
+```mermaid
+flowchart TD
+
+DB[(SQL Server)]
+Repo[Repository]
+Loader[SensitiveWordEngineLoader]
+Trie[Trie Data Structure\n(In-Memory Engine)]
+
+DB --> Repo
+Repo --> Loader
+Loader --> Trie
+```
 ---
 
 ## Stateless API
@@ -459,30 +648,32 @@ Benefits:
 
 ## In-Memory Trie Engine
 
-Sensitive words are loaded into memory during startup:
+Sensitive words are loaded into memory during application startup using the `SensitiveWordEngineLoader`.
 
-Database → Trie Engine → In-Memory Matching
-
+Database → Repository → Engine Loader → Trie → Request Processing
 
 Benefits:
 
 - Eliminates repeated database queries
 - Extremely fast pattern matching
 - Low latency request processing
+- Predictable O(N) text scanning performance
 
 ---
 
 ## Request Processing Pipeline
 
 Client
-↓
+  ↓
 ASP.NET Controller
-↓
+  ↓
 Application Service
-↓
+  ↓
 Trie Matcher
-↓
-Sanitized Response
+  ↓
+Repositories
+  ↓
+SQL Server
 
 
 The API layer handles HTTP concerns while the **Application layer manages business logic**.
@@ -507,6 +698,30 @@ Benefits:
 
 ---
 
+# Design Tradeoffs
+
+This system prioritizes **runtime performance and simplicity** for detecting sensitive words in large volumes of text.
+
+## In-Memory Trie vs Database Lookups
+
+Sensitive words are loaded into memory during application startup using the `SensitiveWordEngineLoader`.
+
+### Advantages
+
+- Extremely fast lookup performance
+- O(N) text scanning using the Trie structure
+- No database queries during request processing
+- Predictable latency under load
+
+### Tradeoffs
+
+- Updates to sensitive words require rebuilding the Trie
+- Increased memory usage for large dictionaries
+- Application restart may be required if dynamic updates are not implemented
+
+This design favors **high-performance request processing**, which is ideal for content filtering systems where sensitive word lists change infrequently.
+
+---
 # Future Improvements
 
 Although designed for a technical assessment, the system can be extended for real-world deployments.
@@ -657,6 +872,10 @@ SensitiveWordsService
 │   │   │   ├── ISensitiveWordRepository.cs
 │   │   │   └── ISensitiveWordService.cs
 │   │
+|   |   |── Common
+│   │   │   ├── Policies
+│   │   │   │   └── PollyPolicies.cs
+│   │   │   │
 │   │   ├── Services
 │   │   │   ├── Engine
 │   │   │   │   ├── SensitiveWordEngine.cs
@@ -878,3 +1097,5 @@ The service ensures reliability by:
 **Ndiphiwe Nombula**  
 Senior Software Developer (C#)
 
+LinkedIn: https://www.linkedin.com/in/ndiphiwe-nombula-23a88b4b/
+GitHub: https://github.com/Ndipza

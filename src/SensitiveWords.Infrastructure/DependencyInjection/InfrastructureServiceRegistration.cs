@@ -13,6 +13,8 @@ namespace SensitiveWords.Infrastructure.DependencyInjection
 
             services.AddScoped<ISensitiveWordRepository, SensitiveWordRepository>();
 
+            services.AddScoped<DatabaseInitializer>();
+
             return services;
         }
     }
